@@ -1,0 +1,6 @@
+Revision history for Perl extension HPUX::LVM.
+
+0.01  Tue Nov 20 15:47:34 2001
+	- original version; created by h2xs 1.21 with options
+		-XA -n HPUX::LVM
+
