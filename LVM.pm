@@ -2,7 +2,7 @@ package HPUX::LVM;
 
 use 5.006;
 use strict;
-use warnings;
+#use warnings;
 
 require Exporter;
 use AutoLoader qw(AUTOLOAD);
@@ -522,6 +522,7 @@ print "Got all $lvdatacnt2 of 14 logical volume data for $lvname\n\n" if $debug;
 					 print "tempdataline2 is   : $tempdataline[2]\n" if $debug;
 					 print "tempdataline3 is   : $tempdataline[3]\n" if $debug;
 					#add it here directly!
+					$vg_info{$vgname}->{lvols}->{$lvname}->{Ordered_PV}->{$lvpvcnt}=$tempdataline[1];
 					$vg_info{$vgname}->{lvols}->{$lvname}->{PV_Data}->{$tempdataline[1]}->{le_on_pv}=$tempdataline[2];
 					$vg_info{$vgname}->{lvols}->{$lvname}->{PV_Data}->{$tempdataline[1]}->{pe_on_pv}=$tempdataline[3];
 #$logical_volume_hash_data{$vgname}{$lvname}{LVPVDATA}=$lvdataline[2];
@@ -1070,6 +1071,30 @@ sub get_vg_lvol_attr_lvdisplay	{
 	$lvol_attr = $self->{$vol_group}->{lvols}->{$logical_vol}->{lvdata}->{$attr};
 	return $lvol_attr;
 				}
+
+sub get_vg_lvol_stripeorder    {
+#return an array
+#pass vg,lvol,phyvol
+
+        my ($self, @subargs) = @_;
+
+        my %arglist      =      (
+                volume_group     => ""   ,
+                logical_vol      => ""   ,
+                @subargs,
+                                );
+        my $vol_group   = $arglist{volume_group};
+        my $logical_vol = $arglist{logical_vol};
+        my $debug =0;
+        my $debug2=0;
+        my $mainkey;
+        my @lvol_stripeorder;
+        foreach $mainkey ( sort keys %{ $self->{$vol_group}->{lvols}->{$logical_vol}->{'Ordered_PV'} } ) {
+                push @lvol_stripeorder, $self->{$vol_group}->{lvols}->{$logical_vol}->{'Ordered_PV'}->{ $mainkey };
+                                                                          }
+        return \@lvol_stripeorder;
+                                }
+
 sub get_vg_lvol_physicalvols	{
 #return an array
 #pass vg,lvol,phyvol
