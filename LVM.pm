@@ -24,7 +24,7 @@ sub new
     my %arglist	 =	(
 	target_type 	=> "local"	,
 	persistance 	=> "new"	,
-	datafile 	=> "/tmp/vginfo.dat",
+	datafile 	=> "/tmp/lvminfo.dat",
 	access_prog 	=> "ssh"	,
 	access_system 	=> "localhost"	,
 	access_user	=> "root"	,
@@ -847,6 +847,58 @@ sub get_all_volumegroups	{
 		push @volumegroups, $mainkey;
 									}
 	return \@volumegroups;
+				}
+sub get_all_pvlinks	{
+#
+#
+#
+# Returns a hash of array/s with pimary links as keys and second 
+#  and thrid etc links as an ordered array.
+# ie. /dev/dsk/c1t2d0 :Key
+#        /dev/dsk/c2t2d0 1st alternate :$array[0]
+#        /dev/dsk/c3t2d0 2nd alternate :$array[1]
+#        /dev/dsk/c4t2d0 3rd alternate :$array[2]
+# No args needed
+        my ($self, @subargs) = @_;
+
+        my %arglist      =      (
+                @subargs,
+                                );
+        my $debug =0;
+   	my $debug2=0;
+   	my $debug5=0;
+        my $mainkey;
+	my $vg;
+	my $pvinvg;
+	my @volumegroups;
+	my @lvol_attra;
+	my %returnhash="";
+       foreach $mainkey (sort keys %{ $self } )    	{
+		print "Volume Groups in self: $mainkey\n" if $debug5;
+		push @volumegroups, $mainkey;
+							}
+	foreach $vg	( @volumegroups )	{
+	  print "VG: $vg\n" if $debug5;
+  PVLOOP:   foreach $pvinvg (sort keys %{ $self->{$vg}->{Physical_Vols} } )    	{
+#
+# Check each physical volume, check for pvlinks and add them as appropriate
+#
+		print "PVinVG: $pvinvg\n" if $debug5;
+	      if ( $self->{$vg}->{Physical_Vols}->{$pvinvg}->{Alternate_Links}->[0] eq "None" ) 	{
+		print "It was NOT defined, continuing\n" if $debug5;
+		@lvol_attra = "";
+		next PVLOOP;
+	}
+	      else	{
+	     	print "It was defined, continuing\n" if $debug5;
+		@lvol_attra = @{ $self->{$vg}->{Physical_Vols}->{$pvinvg}->{Alternate_Links} };
+		print "lvol_attra: @lvol_attra\n<BR>" if $debug5;
+		$returnhash{$pvinvg} = [ @lvol_attra ];
+			}
+	
+									 	}
+						}
+	return \%returnhash;
 				}
 sub get_vg_physicalvols		{
 #return an array

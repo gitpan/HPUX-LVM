@@ -5,3 +5,6 @@ MANIFEST
 README
 t/oo_LVM_test.t
 t/vginfo.dat
+contrib/hp_disk_info.README
+contrib/hp_disk_info.cgi
+contrib/hp_disk_info_launcher.cgi
